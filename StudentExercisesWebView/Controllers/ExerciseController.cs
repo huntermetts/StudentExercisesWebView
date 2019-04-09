@@ -181,7 +181,19 @@ namespace StudentExercisesWebView.Controllers
         // GET: Exercise/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            Exercise exercise = GetExerciseById(id);
+            if (exercise == null)
+            {
+                return NotFound();
+            }
+
+            ExerciseEditViewModel viewModel = new ExerciseEditViewModel
+            {
+                ExerciseName = exercise.Name,
+                ExerciseLanguage = exercise.Language
+            };
+
+            return View(viewModel);
         }
 
         // POST: Exercise/Delete/5
@@ -189,22 +201,32 @@ namespace StudentExercisesWebView.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
         {
-            try
+            using (SqlConnection conn = Connection)
             {
-                // TODO: Add delete logic here
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
+
+                    cmd.CommandText = @"DELETE FROM Exercise WHERE Id = @id";
+
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    throw new Exception("No rows affected");
+                }
             }
         }
 
 
 
         /*
-         Fuction to get an instructor by ID
+         Fuction to get an exercise by ID
          */
         private Exercise GetExerciseById(int id)
         {

@@ -80,3 +80,6 @@ C:\Users\HunterMetts\backendWorkspace\StudentExercisesWebView\StudentExercisesWe
 C:\Users\HunterMetts\backendWorkspace\StudentExercisesWebView\StudentExercisesWebView\obj\Debug\netcoreapp2.2\Razor\Views\Instructor\Edit.g.cshtml.cs
 C:\Users\HunterMetts\backendWorkspace\StudentExercisesWebView\StudentExercisesWebView\obj\Debug\netcoreapp2.2\Razor\Views\Instructor\Delete.g.cshtml.cs
 C:\Users\HunterMetts\backendWorkspace\StudentExercisesWebView\StudentExercisesWebView\obj\Debug\netcoreapp2.2\Razor\Views\Exercise\Edit.g.cshtml.cs
+C:\Users\HunterMetts\backendWorkspace\StudentExercisesWebView\StudentExercisesWebView\obj\Debug\netcoreapp2.2\Razor\Views\Exercise\Delete.g.cshtml.cs
+C:\Users\HunterMetts\backendWorkspace\StudentExercisesWebView\StudentExercisesWebView\obj\Debug\netcoreapp2.2\Razor\Views\Cohort\Edit.g.cshtml.cs
+C:\Users\HunterMetts\backendWorkspace\StudentExercisesWebView\StudentExercisesWebView\obj\Debug\netcoreapp2.2\Razor\Views\Cohort\Delete.g.cshtml.cs

@@ -133,30 +133,58 @@ namespace StudentExercisesWebView.Controllers
         // GET: Cohort/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            Cohort cohort = GetCohortById(id);
+            if (cohort == null)
+            {
+                return NotFound();
+            }
+
+            CohortEditViewModel viewModel = new CohortEditViewModel
+            {
+                CohortName = cohort.Name
+            };
+
+            return View(viewModel);
         }
 
         // POST: Cohort/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, CohortEditViewModel viewModel)
         {
-            try
+            using (SqlConnection conn = Connection)
             {
-                // TODO: Add update logic here
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"UPDATE cohort 
+                                           SET [name] = @name           
+                                               WHERE id = @id;";
+                    cmd.Parameters.Add(new SqlParameter("@name", viewModel.CohortName));
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
+                    cmd.ExecuteNonQuery();
+
+                    return RedirectToAction(nameof(Index));
+                }
             }
         }
 
         // GET: Cohort/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            Cohort cohort = GetCohortById(id);
+            if (cohort == null)
+            {
+                return NotFound();
+            }
+
+            CohortEditViewModel viewModel = new CohortEditViewModel
+            {
+                CohortName = cohort.Name
+            };
+
+            return View(viewModel);
         }
 
         // POST: Cohort/Delete/5
@@ -164,18 +192,93 @@ namespace StudentExercisesWebView.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
         {
-            try
+            using (SqlConnection conn = Connection)
             {
-                // TODO: Add delete logic here
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
+
+                    cmd.CommandText = @"DELETE FROM Cohort WHERE Id = @id";
+
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    throw new Exception("No rows affected");
+                }
             }
         }
 
-        
+
+        /*
+        Fuction to get a cohort by ID
+        */
+        private Cohort GetCohortById(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT cohort.id as cId, cohort.[name] as cName from Cohort
+                                         WHERE  cohort.id = @id";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    Cohort cohort= null;
+
+                    if (reader.Read())
+                    {
+                        cohort = new Cohort
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("cId")),
+                            Name = reader.GetString(reader.GetOrdinal("cName"))
+                        };
+                    }
+
+                    reader.Close();
+
+                    return cohort;
+                }
+            }
+        }
+
+
+        /*
+           Function to get all Exercises
+       */
+        private List<Cohort> GetAllCohorts()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT id, [name] from Exercise;";
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    List<Cohort> cohorts = new List<Cohort>();
+
+                    while (reader.Read())
+                    {
+                        cohorts.Add(new Cohort
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("name"))
+                        });
+                    }
+                    reader.Close();
+
+                    return cohorts;
+                }
+            }
+
+        }
+
     }
 }
