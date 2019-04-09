@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using StudentExercisesWebView.Models;
+using StudentExercisesWebView.Models.ViewModels;
 
 namespace StudentExercisesWebView.Controllers
 {
@@ -104,47 +105,77 @@ namespace StudentExercisesWebView.Controllers
         // GET: Exercise/Create
         public ActionResult Create()
         {
-            return View();
+            ExerciseCreateViewModel viewModel =
+              new ExerciseCreateViewModel();
+            return View(viewModel);
         }
 
         // POST: Exercise/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(ExerciseCreateViewModel viewModel)
         {
-            try
+            using (SqlConnection conn = Connection)
             {
-                // TODO: Add insert logic here
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"INSERT INTO exercise ([Name], Language)
+                                             VALUES (@name, @language)";
+                    cmd.Parameters.Add(new SqlParameter("@name", viewModel.ExerciseName));
+                    cmd.Parameters.Add(new SqlParameter("@language", viewModel.ExerciseLanguage));
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
+
+                    cmd.ExecuteNonQuery();
+
+                    return RedirectToAction(nameof(Index));
+                }
             }
         }
 
         // GET: Exercise/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            Exercise exercise = GetExerciseById(id);
+            if (exercise == null)
+            {
+                return NotFound();
+            }
+
+            ExerciseEditViewModel viewModel = new ExerciseEditViewModel
+            {
+                ExerciseName = exercise.Name,
+                ExerciseLanguage = exercise.Language
+            };
+
+            return View(viewModel);
         }
 
         // POST: Exercise/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, ExerciseEditViewModel viewModel)
         {
-            try
-            {
-                // TODO: Add update logic here
+           
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"UPDATE exercise 
+                                           SET [name] = @name, 
+                                               [language] = @language
+                                               WHERE id = @id;";
+                        cmd.Parameters.Add(new SqlParameter("@name", viewModel.ExerciseName));
+                        cmd.Parameters.Add(new SqlParameter("@language", viewModel.ExerciseLanguage));
+                        cmd.Parameters.Add(new SqlParameter("@id", id));
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+                        cmd.ExecuteNonQuery();
+
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+            
         }
 
         // GET: Exercise/Delete/5
@@ -168,6 +199,76 @@ namespace StudentExercisesWebView.Controllers
             {
                 return View();
             }
+        }
+
+
+
+        /*
+         Fuction to get an instructor by ID
+         */
+        private Exercise GetExerciseById(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT exercise.id as eId, exercise.[name] as eName, exercise.[language] as eLang from Exercise
+                                         WHERE  exercise.id = @id";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    Exercise exercise = null;
+
+                    if (reader.Read())
+                    {
+                        exercise = new Exercise
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("eId")),
+                            Name = reader.GetString(reader.GetOrdinal("eName")),
+                            Language = reader.GetString(reader.GetOrdinal("eLang")),
+
+                        };
+                    }
+
+                    reader.Close();
+
+                    return exercise;
+                }
+            }
+        }
+
+
+        /*
+           Function to get all Exercises
+       */
+        private List<Exercise> GetAllExercises()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT id, [name], [language] from Exercise;";
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    List<Exercise> exercises = new List<Exercise>();
+
+                    while (reader.Read())
+                    {
+                        exercises.Add(new Exercise
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("name")),
+                            Language = reader.GetString(reader.GetOrdinal("language"))
+                        });
+                    }
+                    reader.Close();
+
+                    return exercises;
+                }
+            }
+
         }
     }
 }

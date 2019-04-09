@@ -9,10 +9,11 @@ namespace StudentExercisesWebView.Models
     public class Instructor
     {
         public int Id { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "A first name is required")]
         [Display(Name = "First Name")]
         public string FirstName { get; set; }
-        [Required]
+        [Required(ErrorMessage = "A last name is required")]
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
@@ -25,10 +26,10 @@ namespace StudentExercisesWebView.Models
             }
         }
 
-        [Required]
+        [Required(ErrorMessage = "A slack handle is required")]
         [Display(Name = "Slack")]
         public string SlackHandle { get; set; }
-        [Required]
+        [Required(ErrorMessage = "A cohort is required")]
         [Display(Name = "Cohort")]
         public int CohortId { get; set; }
         public Cohort Cohort { get; set; }

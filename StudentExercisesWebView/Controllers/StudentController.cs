@@ -43,7 +43,7 @@ namespace StudentExercisesWebView.Controllers
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "select student.id as studentId, FirstName as studentFirstName, LastName as studentLastName, SlackHandle as studentSlackHandle, cohort.[name] as CohortName, CohortId as studentCohortId from " +
-                        "cohort left join student on cohort.id = student.CohortId ";
+                        "cohort inner join student on cohort.id = student.CohortId ";
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     List<Student> studentList = new List<Student>();
@@ -78,7 +78,7 @@ namespace StudentExercisesWebView.Controllers
                 {
 
                     cmd.CommandText = "select student.id as studentId, FirstName as studentFirstName, LastName as studentLastName, SlackHandle as studentSlackHandle, cohort.[name] as CohortName, CohortId as studentCohortId from " +
-                        "cohort left join student on cohort.id = student.CohortId " +
+                        "cohort inner join student on cohort.id = student.CohortId " +
                         "where student.id = @id";
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
